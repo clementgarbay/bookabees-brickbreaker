@@ -1,2 +1,6 @@
 node_modules
 dist
+
+!node_modules/phaser/build/*.map
+!node_modules/phaser/build/*.min.js
+!dist/bundle.js
