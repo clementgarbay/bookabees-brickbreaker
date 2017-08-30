@@ -2,6 +2,8 @@ import Phaser from 'phaser'
 import config, { baseStyle } from '../config'
 import { gameOver } from '../main'
 
+const random = (max, min = 0) => Math.floor(Math.random() * (max + 1 - min) + min)
+
 class Game {
   constructor (game) {
     this.game = game
@@ -104,7 +106,7 @@ class Game {
   }
 
   drawIntroText (text = 'Click to start') {
-    this.introText = this.game.add.text(this.game.world.centerX, 300, text,
+    this.introText = this.game.add.text(this.game.world.centerX, 320, text,
       Object.assign({}, baseStyle, {
         font: '40px Arial'
       })
@@ -114,12 +116,14 @@ class Game {
 
   addBricks () {
     const brickImg = this.game.cache.getImage('brick')
-    const nbBricks = 1 // Math.floor((this.game.world.width) / (brickImg.width + config.brickMargin))
+    const nbBricks = Math.floor((this.game.world.width) / (brickImg.width + config.brickMargin))
 
     Array.from(Array(config.nbBrickLines).keys()).forEach(j => {
       Array.from(Array(nbBricks).keys()).forEach(i => {
+        // const brickName = `brick${random(4, 1)}`
+        // const brickImg = this.game.cache.getImage(brickName)
         const x = i * brickImg.width + (config.brickMargin * (i + 1))
-        const y = 100 + j * brickImg.height + (config.brickMargin * (j + 1))
+        const y = 40 + j * brickImg.height + (config.brickMargin * (j + 1))
         const brick = this.bricks.create(x, y, 'brick')
         brick.body.bounce.set(1)
         brick.body.immovable = true
@@ -128,13 +132,11 @@ class Game {
   }
 
   movePaddle () {
-    const paddleWidth = this.game.cache.getImage('paddle').width
-
     // Use the mouse position
     this.paddle.x = this.game.input.x
 
-    if (this.paddle.x < 30) this.paddle.x = 30
-    if ((this.paddle.x + paddleWidth) > this.game.world.width) this.paddle.x = this.game.world.width - paddleWidth
+    if (this.paddle.x < 40) this.paddle.x = 40
+    if (this.paddle.x > this.game.world.width - 40) this.paddle.x = this.game.world.width - 40
   }
 
   startBall () {

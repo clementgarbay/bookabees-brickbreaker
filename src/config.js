@@ -6,7 +6,7 @@ export default {
   velocityX: -75,
   velocityY: -300,
   lives: 3,
-  nbBrickLines: 3,
+  nbBrickLines: 5,
   brickMargin: 20
 }
 
