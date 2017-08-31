@@ -3,11 +3,9 @@ export default {
     width: 800,
     height: 600
   },
-  velocityX: -75,
-  velocityY: -300,
   lives: 3,
-  nbBrickLines: 5,
-  brickMargin: 20
+  autoNbBrickLines: 5,
+  autoBrickMargin: 20
 }
 
 export const baseStyle = {

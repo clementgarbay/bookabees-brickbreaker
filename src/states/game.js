@@ -1,8 +1,7 @@
 import Phaser from 'phaser'
 import config, { baseStyle } from '../config'
+import figures from '../figures'
 import { gameOver } from '../main'
-
-const random = (max, min = 0) => Math.floor(Math.random() * (max + 1 - min) + min)
 
 class Game {
   constructor (game) {
@@ -47,12 +46,14 @@ class Game {
     this.bricks.enableBody = true
     this.bricks.physicsBodyType = Phaser.Physics.ARCADE
 
-    // Add bricks to the board game
-    this.addBricks()
-
+    // Init shared variables
     this.isRunning = false
     this.score = 0
+    this.level = 1
     this.lives = config.lives
+
+    // Add bricks to the board game
+    this.addBricks()
 
     // Draw texts
     this.drawScore()
@@ -118,15 +119,54 @@ class Game {
   }
 
   addBricks () {
-    const brickImg = this.game.cache.getImage('brick')
-    const nbBricks = Math.floor((this.game.world.width) / (brickImg.width + config.brickMargin))
+    // use the desired figure
+    if (this.level === 1) {
+      this.addBricksFigure(figures.figure1)
+    } else {
+      this.addBricksFigure(figures.figure2)
+    }
+  }
 
-    Array.from(Array(config.nbBrickLines).keys()).forEach(j => {
+  /**
+   * Add bricks from a figure array (15x7)
+   *
+   * Works with:
+   *  - 800px for the width of the board game
+   *  - 32px for the width of the brick
+   *  - 17px for margin between bricks
+   */
+  addBricksFigure (figure) {
+    const brickMargin = 17
+    const brickWidth = 32
+    const brickHeight = 16
+
+    if (figure) {
+      figure.forEach((line, j) => {
+        line.forEach((elem, i) => {
+          const x = i * brickWidth + (brickMargin * (i + 1))
+          const y = 40 + j * brickHeight + (brickMargin * (j + 1))
+
+          if (elem) {
+            const brick = this.bricks.create(x, y, 'brick')
+            brick.body.bounce.set(1)
+            brick.body.immovable = true
+          }
+        })
+      })
+    }
+  }
+
+  /**
+   * Add bricks to the board game automatically, depending on game width, bricks size, margin
+   */
+  addBricksAuto () {
+    const brickImg = this.game.cache.getImage('brick')
+    const nbBricks = Math.floor((this.game.world.width) / (brickImg.width + config.autoBrickMargin))
+
+    Array.from(Array(config.autoNbBrickLines).keys()).forEach(j => {
       Array.from(Array(nbBricks).keys()).forEach(i => {
-        // const brickName = `brick${random(4, 1)}`
-        // const brickImg = this.game.cache.getImage(brickName)
-        const x = i * brickImg.width + (config.brickMargin * (i + 1))
-        const y = 40 + j * brickImg.height + (config.brickMargin * (j + 1))
+        const x = i * brickImg.width + (config.autoBrickMargin * (i + 1))
+        const y = 40 + j * brickImg.height + (config.autoBrickMargin * (j + 1))
         const brick = this.bricks.create(x, y, 'brick')
         brick.body.bounce.set(1)
         brick.body.immovable = true
@@ -145,8 +185,8 @@ class Game {
   startBall () {
     if (!this.isRunning) {
       this.isRunning = true
-      this.ball.body.velocity.x = config.velocityX  // ball starting velocity
-      this.ball.body.velocity.y = config.velocityY
+      this.ball.body.velocity.x = 0  // ball starting velocity
+      this.ball.body.velocity.y = -300
       this.ball.animations.play('spin')
       this.introText.visible = false
     }
@@ -175,7 +215,7 @@ class Game {
     this.updateScore()
 
     if (this.bricks.countLiving() === 0) {
-      // Update score (next level)
+      // Update score (+100 for each level)
       this.updateScore(100)
 
       // Update intro text
@@ -185,10 +225,14 @@ class Game {
       this.ball.body.velocity.set(0)
       this.resetBall()
 
-      // Bring the bricks back
-      this.bricks.callAll('revive')
-
       this.isRunning = false
+      this.level++ // next level
+
+      // Add new bricks
+      this.addBricks()
+
+      // Bring the bricks back
+      // this.bricks.callAll('revive')
     }
   }
 
@@ -197,7 +241,7 @@ class Game {
     this.updateLives()
 
     if (this.lives === 0) {
-      gameOver()
+      gameOver(this.score)
     } else {
       this.resetBall()
       this.isRunning = false
