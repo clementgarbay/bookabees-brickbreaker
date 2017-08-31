@@ -9,7 +9,7 @@
 #container #game {
   width: 90%;
   height: 90%;
-  margin: 2% 0 0 0;
+  margin: 2% auto 0 auto;
 }
 
 @media only screen and (max-width : 480px) {
