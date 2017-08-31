@@ -62,13 +62,17 @@ class Game {
 
     // Add events handlers
     this.game.input.onDown.add(this.startBall, this)
+    this.game.input.mouse.mouseOutCallback = () => { this.mouseOut = true }
+    this.game.input.mouse.mouseOverCallback = () => { this.mouseOut = false }
     this.game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR).onDown.add(this.startBall, this)
+    this.game.input.keyboard.addKey(Phaser.Keyboard.LEFT).onHoldCallback = this.movePaddleLeft.bind(this)
+    this.game.input.keyboard.addKey(Phaser.Keyboard.RIGHT).onHoldCallback = this.movePaddleRight.bind(this)
   }
 
   update () {
     const ballWidth = this.game.cache.getImage('ball').width
 
-    this.movePaddle()
+    this.movePaddleMouse()
 
     if (!this.isRunning) {
       this.ball.body.x = this.paddle.x - (ballWidth / 2)
@@ -81,7 +85,7 @@ class Game {
   }
 
   drawScore () {
-    this.scoreText = this.game.add.text(30, this.game.world.height - 60, `Score: ${this.score}`,
+    this.scoreText = this.game.add.text(30, this.game.world.height - 50, `Score: ${this.score}`,
       Object.assign({}, baseStyle, {
         font: '20px Arial',
         align: 'left'
@@ -95,8 +99,8 @@ class Game {
   }
 
   drawLives () {
-    this.game.add.sprite(this.game.world.width - 60, this.game.world.height - 59, 'live').scale.set(0.4)
-    this.livesText = this.game.add.text(this.game.world.width - 80, this.game.world.height - 60, this.lives,
+    this.game.add.sprite(this.game.world.width - 60, this.game.world.height - 49, 'live').scale.set(0.4)
+    this.livesText = this.game.add.text(this.game.world.width - 80, this.game.world.height - 50, this.lives,
       Object.assign({}, baseStyle, {
         font: '20px Arial',
         align: 'left'
@@ -174,12 +178,26 @@ class Game {
     })
   }
 
-  movePaddle () {
-    // Use the mouse position
-    this.paddle.x = this.game.input.x
+  movePaddle (x) {
+    this.paddle.x = x
 
     if (this.paddle.x < 40) this.paddle.x = 40
     if (this.paddle.x > this.game.world.width - 40) this.paddle.x = this.game.world.width - 40
+  }
+
+  movePaddleMouse () {
+    if (!this.mouseOut) {
+      // Use the mouse position
+      this.movePaddle(this.game.input.x)
+    }
+  }
+
+  movePaddleLeft () {
+    this.movePaddle(this.paddle.x - 7)
+  }
+
+  movePaddleRight () {
+    this.movePaddle(this.paddle.x + 7)
   }
 
   startBall () {
