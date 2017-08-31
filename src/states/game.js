@@ -13,6 +13,7 @@ class Game {
     this.game.load.image('ball', 'assets/images/ball.png')
     this.game.load.image('brick', 'assets/images/brick.png')
     this.game.load.image('paddle', 'assets/images/paddle.png')
+    this.game.load.image('live', 'assets/images/live.png')
     this.game.load.image('background', 'assets/images/bg.png')
   }
 
@@ -34,7 +35,7 @@ class Game {
     this.paddle.body.immovable = true
 
     // Init ball configuration
-    this.ball = this.game.add.sprite(this.game.world.centerX, this.paddle.y - 20, 'ball')
+    this.ball = this.game.add.sprite(this.game.world.centerX, this.paddle.y - 22, 'ball')
     this.ball.anchor.set(0.5)
     this.ball.checkWorldBounds = true // checks if it is within the World bounds each frame
     this.game.physics.enable(this.ball, Phaser.Physics.ARCADE)
@@ -49,6 +50,7 @@ class Game {
     // Add bricks to the board game
     this.addBricks()
 
+    this.isRunning = false
     this.score = 0
     this.lives = config.lives
 
@@ -92,7 +94,8 @@ class Game {
   }
 
   drawLives () {
-    this.livesText = this.game.add.text(this.game.world.width - 100, this.game.world.height - 60, `Lives: ${this.lives}`,
+    this.game.add.sprite(this.game.world.width - 60, this.game.world.height - 59, 'live').scale.set(0.4)
+    this.livesText = this.game.add.text(this.game.world.width - 80, this.game.world.height - 60, this.lives,
       Object.assign({}, baseStyle, {
         font: '20px Arial',
         align: 'left'
@@ -102,7 +105,7 @@ class Game {
 
   updateLives (livesDecrement = 1) {
     this.lives -= livesDecrement
-    this.livesText.text = `Lives: ${this.lives}`
+    this.livesText.text = this.lives
   }
 
   drawIntroText (text = 'Click to start') {
@@ -203,7 +206,7 @@ class Game {
 
   resetBall () {
     const paddleImg = this.game.cache.getImage('paddle')
-    this.ball.reset(this.paddle.x + paddleImg.width / 2, this.paddle.y - 20)
+    this.ball.reset(this.paddle.x + paddleImg.width / 2, this.paddle.y - 22)
     this.ball.animations.stop()
   }
 }
